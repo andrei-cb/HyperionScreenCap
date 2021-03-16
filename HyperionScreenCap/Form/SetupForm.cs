@@ -95,6 +95,9 @@ namespace HyperionScreenCap
                 case CaptureMethod.DX9:
                     return $"DX9 Mon: {taskConfiguration.Dx9MonitorIndex}";
 
+                case CaptureMethod.DX11DualScreen:
+                    return $"DX11 Dual: {taskConfiguration.Dx11DualScreenMonitorIndex1}-{taskConfiguration.Dx11DualScreenMonitorIndex2}";
+
                 default:
                     throw new NotImplementedException($"The capture method {taskConfiguration.CaptureMethod} is not supported");
             }

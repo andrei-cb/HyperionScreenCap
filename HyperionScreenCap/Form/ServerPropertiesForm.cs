@@ -39,6 +39,12 @@ namespace HyperionScreenCap
             tbDx9CaptureWidth.Text = TaskConfiguration.Dx9CaptureWidth.ToString();
             tbDx9CaptureHeight.Text = TaskConfiguration.Dx9CaptureHeight.ToString();
             tbDx9CaptureInterval.Text = TaskConfiguration.Dx9CaptureInterval.ToString();
+            SelectValueFromComboBox(cbDx11DualScreenAdapterIndex, TaskConfiguration.Dx11DualScreenAdapterIndex);
+            SelectValueFromComboBox(cbDx11DualScreenMonitorIndex1, TaskConfiguration.Dx11DualScreenMonitorIndex1);
+            SelectValueFromComboBox(cbDx11DualScreenMonitorIndex2, TaskConfiguration.Dx11DualScreenMonitorIndex2);
+            tbDx11DualScreenFrameCaptureTimeout.Text = TaskConfiguration.Dx11DualScreenFrameCaptureTimeout.ToString();
+            SelectValueFromComboBox(cbDx11DualScreenImageScalingFactor, TaskConfiguration.Dx11DualScreenImageScalingFactor);
+            tbDx11DualScreenMaxFps.Text = TaskConfiguration.Dx11DualScreenMaxFps.ToString();
 
             var hyperionServersBindingList = new BindingList<HyperionServer>(TaskConfiguration.HyperionServers);
             var hyperionServersDataSource = new BindingSource(hyperionServersBindingList, null);
@@ -47,7 +53,24 @@ namespace HyperionScreenCap
 
         private void SaveFormFields()
         {
-            TaskConfiguration.CaptureMethod = rbcmDx11.Checked ? CaptureMethod.DX11 : CaptureMethod.DX9;
+            if (rbcmDx11.Checked)
+            {
+                TaskConfiguration.CaptureMethod = CaptureMethod.DX11;
+            }
+            else if(rbcmDx11DualScreen.Checked)
+            {
+                TaskConfiguration.CaptureMethod = CaptureMethod.DX11DualScreen;
+            }
+            else
+            {
+                TaskConfiguration.CaptureMethod = CaptureMethod.DX9;
+            }
+            TaskConfiguration.Dx11DualScreenAdapterIndex = int.Parse(cbDx11DualScreenAdapterIndex.SelectedItem.ToString());
+            TaskConfiguration.Dx11DualScreenMonitorIndex1 = int.Parse(cbDx11DualScreenMonitorIndex1.SelectedItem.ToString());
+            TaskConfiguration.Dx11DualScreenMonitorIndex2 = int.Parse(cbDx11DualScreenMonitorIndex2.SelectedItem.ToString());
+            TaskConfiguration.Dx11DualScreenFrameCaptureTimeout = int.Parse(tbDx11DualScreenFrameCaptureTimeout.Text);
+            TaskConfiguration.Dx11DualScreenImageScalingFactor = int.Parse(cbDx11DualScreenImageScalingFactor.SelectedItem.ToString());
+            TaskConfiguration.Dx11DualScreenMaxFps = int.Parse(tbDx11DualScreenMaxFps.Text);
             TaskConfiguration.Dx11AdapterIndex = int.Parse(cbDx11AdapterIndex.SelectedItem.ToString());
             TaskConfiguration.Dx11MonitorIndex = int.Parse(cbDx11MonitorIndex.SelectedItem.ToString());
             TaskConfiguration.Dx11FrameCaptureTimeout = int.Parse(tbDx11FrameCaptureTimeout.Text);
@@ -69,6 +92,12 @@ namespace HyperionScreenCap
                     tbDx9CaptureWidth.Enabled = false;
                     tbDx9CaptureHeight.Enabled = false;
                     tbDx9CaptureInterval.Enabled = false;
+                    cbDx11DualScreenAdapterIndex.Enabled = false;
+                    cbDx11DualScreenMonitorIndex1.Enabled = false;
+                    cbDx11DualScreenMonitorIndex2.Enabled = false;
+                    tbDx11DualScreenFrameCaptureTimeout.Enabled = false;
+                    cbDx11DualScreenImageScalingFactor.Enabled = false;
+                    tbDx11DualScreenMaxFps.Enabled = false;
                     cbDx11AdapterIndex.Enabled = true;
                     cbDx11MonitorIndex.Enabled = true;
                     tbDx11FrameCaptureTimeout.Enabled = true;
@@ -83,10 +112,35 @@ namespace HyperionScreenCap
                     tbDx11FrameCaptureTimeout.Enabled = false;
                     cbDx11ImageScalingFactor.Enabled = false;
                     tbDx11MaxFps.Enabled = false;
+                    cbDx11DualScreenAdapterIndex.Enabled = false;
+                    cbDx11DualScreenMonitorIndex1.Enabled = false;
+                    cbDx11DualScreenMonitorIndex2.Enabled = false;
+                    tbDx11DualScreenFrameCaptureTimeout.Enabled = false;
+                    cbDx11DualScreenImageScalingFactor.Enabled = false;
+                    tbDx11DualScreenMaxFps.Enabled = false;
                     cbDx9MonitorIndex.Enabled = true;
                     tbDx9CaptureWidth.Enabled = true;
                     tbDx9CaptureHeight.Enabled = true;
                     tbDx9CaptureInterval.Enabled = true;
+                    break;
+
+                case CaptureMethod.DX11DualScreen:
+                    rbcmDx11DualScreen.Checked = true;
+                    cbDx11AdapterIndex.Enabled = false;
+                    cbDx11MonitorIndex.Enabled = false;
+                    tbDx11FrameCaptureTimeout.Enabled = false;
+                    cbDx11ImageScalingFactor.Enabled = false;
+                    tbDx11MaxFps.Enabled = false;
+                    cbDx11DualScreenAdapterIndex.Enabled = true;
+                    cbDx11DualScreenMonitorIndex1.Enabled = true;
+                    cbDx11DualScreenMonitorIndex2.Enabled = true;
+                    tbDx11DualScreenFrameCaptureTimeout.Enabled = true;
+                    cbDx11DualScreenImageScalingFactor.Enabled = true;
+                    tbDx11DualScreenMaxFps.Enabled = true;
+                    cbDx9MonitorIndex.Enabled = false;
+                    tbDx9CaptureWidth.Enabled = false;
+                    tbDx9CaptureHeight.Enabled = false;
+                    tbDx9CaptureInterval.Enabled = false;
                     break;
 
                 default:
@@ -220,8 +274,20 @@ namespace HyperionScreenCap
         {
             if ( rbcmDx11.Checked )
                 EnableRelevantDxFields(CaptureMethod.DX11);
+            else if (rbcmDx11DualScreen.Checked)
+                EnableRelevantDxFields(CaptureMethod.DX11DualScreen);
             else
                 EnableRelevantDxFields(CaptureMethod.DX9);
+        }
+
+        private void tblScreenCaptureMethod_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void tableLayoutPanel2_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

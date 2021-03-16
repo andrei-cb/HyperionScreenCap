@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiServer.cs" />
+    <Compile Include="Capture\Dx11DualScreenCapture.cs" />
     <Compile Include="Capture\IScreenCapture.cs" />
     <Compile Include="Helper\HyperionTask.cs" />
     <Compile Include="Config\AppConstants.cs" />

@@ -76,7 +76,7 @@ namespace HyperionScreenCap.Helper
 
         private void InstantiateScreenCapture()
         {
-            switch ( _configuration.CaptureMethod )
+            switch (_configuration.CaptureMethod)
             {
                 case CaptureMethod.DX9:
                     _screenCapture = new DX9ScreenCapture(_configuration.Dx9MonitorIndex, _configuration.Dx9CaptureWidth, _configuration.Dx9CaptureHeight,
@@ -86,6 +86,11 @@ namespace HyperionScreenCap.Helper
                 case CaptureMethod.DX11:
                     _screenCapture = new DX11ScreenCapture(_configuration.Dx11AdapterIndex, _configuration.Dx11MonitorIndex, _configuration.Dx11ImageScalingFactor,
                         _configuration.Dx11MaxFps, _configuration.Dx11FrameCaptureTimeout);
+                    break;
+
+                case CaptureMethod.DX11DualScreen:
+                    _screenCapture = new Dx11DualScreenCapture(_configuration.Dx11DualScreenAdapterIndex, _configuration.Dx11DualScreenMonitorIndex1, _configuration.Dx11DualScreenMonitorIndex2,
+                        _configuration.Dx11DualScreenImageScalingFactor, _configuration.Dx11DualScreenMaxFps, _configuration.Dx11DualScreenFrameCaptureTimeout);
                     break;
 
                 default:

@@ -19,6 +19,12 @@ namespace HyperionScreenCap.Model
         public int Dx11ImageScalingFactor { get; set; }
         public int Dx11AdapterIndex { get; set; }
         public int Dx11MonitorIndex { get; set; }
+        public int Dx11DualScreenMaxFps { get; set; }
+        public int Dx11DualScreenFrameCaptureTimeout { get; set; }
+        public int Dx11DualScreenImageScalingFactor { get; set; }
+        public int Dx11DualScreenAdapterIndex { get; set; }
+        public int Dx11DualScreenMonitorIndex1 { get; set; }
+        public int Dx11DualScreenMonitorIndex2 { get; set; }
         public List<HyperionServer> HyperionServers { get; set; }
 
         public static HyperionTaskConfiguration BuildUsingLegacySettings()
@@ -40,6 +46,12 @@ namespace HyperionScreenCap.Model
                 Dx11ImageScalingFactor = Settings.Default.dx11ImageScalingFactor,
                 Dx11AdapterIndex = Settings.Default.dx11AdapterIndex,
                 Dx11MonitorIndex = Settings.Default.dx11MonitorIndex,
+                Dx11DualScreenMaxFps = Settings.Default.dx11MaxFps,
+                Dx11DualScreenFrameCaptureTimeout = Settings.Default.dx11FrameCaptureTimeout,
+                Dx11DualScreenImageScalingFactor = Settings.Default.dx11ImageScalingFactor,
+                Dx11DualScreenAdapterIndex = Settings.Default.dx11AdapterIndex,
+                Dx11DualScreenMonitorIndex1 = Settings.Default.dx11MonitorIndex,
+                Dx11DualScreenMonitorIndex2 = Settings.Default.dx11MonitorIndex + 1,
                 HyperionServers = hyperionServers
             };
         }
@@ -63,6 +75,12 @@ namespace HyperionScreenCap.Model
                 Dx11ImageScalingFactor = 32,
                 Dx11AdapterIndex = 0,
                 Dx11MonitorIndex = 0,
+                Dx11DualScreenMaxFps = 60,
+                Dx11DualScreenFrameCaptureTimeout = 1250,
+                Dx11DualScreenImageScalingFactor = 32,
+                Dx11DualScreenAdapterIndex = 0,
+                Dx11DualScreenMonitorIndex1 = 0,
+                Dx11DualScreenMonitorIndex2 = 1,
                 HyperionServers = hyperionServers
             };
         }

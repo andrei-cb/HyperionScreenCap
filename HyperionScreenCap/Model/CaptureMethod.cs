@@ -6,6 +6,7 @@ namespace HyperionScreenCap.Model
     public enum CaptureMethod
     {
         DX9,
-        DX11
+        DX11,
+        DX11DualScreen
     }
 }
