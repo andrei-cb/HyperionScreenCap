@@ -65,6 +65,8 @@ namespace HyperionScreenCap
             _trayIcon.Visible = true;
 
             LOG.Info("MainForm Instantiated");
+
+            ToggleCapture(CaptureCommand.ON);
         }
         private void MainForm_Shown(object sender, EventArgs e)
         {
