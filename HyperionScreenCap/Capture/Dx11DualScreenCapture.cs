@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace HyperionScreenCap.Capture
@@ -40,30 +44,39 @@ namespace HyperionScreenCap.Capture
             var image1 = _capture1.Capture();
             var image2 = _capture2.Capture();
 
-            byte[] bytes = new byte[image1.Length + image2.Length];
+            var bitmap1 = ImageFromRawArray(image1, _capture1.CaptureWidth, _capture1.CaptureHeight, PixelFormat.Format24bppRgb);
+            var bitmap2 = ImageFromRawArray(image2, _capture2.CaptureWidth, _capture2.CaptureHeight, PixelFormat.Format24bppRgb);
 
-            for(var y = 0; y < CaptureHeight; y++)
+            // reduce image1 size to match image2 height
+            if(bitmap1.Height > bitmap2.Height)
             {
-                for(var x = 0; x < CaptureWidth; x++)
+                var original = bitmap1;
+                bitmap1 = new Bitmap(original, new Size(_capture1.CaptureWidth, CaptureHeight));
+                original.Dispose();
+            }
+            // reduce image2 size to match image height
+            else if(bitmap1.Height < bitmap2.Height)
+            {
+                var original = bitmap2;
+                bitmap2 = new Bitmap(original, new Size(_capture2.CaptureWidth, CaptureHeight));
+                original.Dispose();
+            }
+
+            using (Bitmap mergedBitmap = new Bitmap(CaptureWidth, CaptureHeight, PixelFormat.Format24bppRgb))
+            {
+                using (Graphics g = Graphics.FromImage(mergedBitmap))
                 {
-                    if(x < _capture1.CaptureWidth)
-                    {
-                        bytes[y * 3 * CaptureWidth + x * 3] = image1[y * 3 * _capture1.CaptureWidth + x * 3];
-                        bytes[y * 3 * CaptureWidth + x * 3 + 1] = image1[y * 3 * _capture1.CaptureWidth + x * 3 + 1];
-                        bytes[y * 3 * CaptureWidth + x * 3 + 2] = image1[y * 3 * _capture1.CaptureWidth + x * 3 + 2];
-                    }
-                    else
-                    {
-                        bytes[y * 3 * CaptureWidth + x * 3] = image2[y * 3 * _capture2.CaptureWidth + x * 3 - _capture1.CaptureWidth * 3];
-                        bytes[y * 3 * CaptureWidth + x * 3 + 1] = image2[y * 3 * _capture2.CaptureWidth + x * 3 - _capture1.CaptureWidth * 3 + 1];
-                        bytes[y * 3 * CaptureWidth + x * 3 + 2] = image2[y * 3 * _capture2.CaptureWidth + x * 3 - _capture1.CaptureWidth * 3 + 2];
-                    }
+                    g.DrawImage(bitmap1, 0, 0);
+                    g.DrawImage(bitmap2, bitmap1.Width, 0);
+
+                    bitmap1.Dispose();
+                    bitmap2.Dispose();
+
+                    _captureTimer.Stop();
+
+                    return BitmapToByteArray(mergedBitmap);
                 }
-            }  
-
-            _captureTimer.Stop();
-
-            return bytes;
+            }
         }
  
         public void DelayNextCapture()
@@ -90,7 +103,7 @@ namespace HyperionScreenCap.Capture
             _capture2.Initialize();
 
             CaptureWidth = (_capture1.CaptureWidth + _capture2.CaptureWidth);
-            CaptureHeight = (_capture1.CaptureHeight + _capture2.CaptureHeight) / 2;
+            CaptureHeight = Math.Min(_capture1.CaptureHeight, _capture2.CaptureHeight);
 
             _captureTimer = new Stopwatch();
             _minCaptureTime = 1000 / _maxFps;
@@ -99,6 +112,48 @@ namespace HyperionScreenCap.Capture
         public bool IsDisposed()
         {
             return (_capture1 == null || _capture2 == null) || (_capture1.IsDisposed() && _capture2.IsDisposed());
+        }
+
+        private static Image ImageFromRawArray(byte[] arr, int width, int height, PixelFormat pixelFormat)
+        {
+            var output = new Bitmap(width, height, pixelFormat);
+            var rect = new Rectangle(0, 0, width, height);
+            var bmpData = output.LockBits(rect, ImageLockMode.ReadWrite, output.PixelFormat);
+
+            // Row-by-row copy
+            var arrRowLength = width * Image.GetPixelFormatSize(output.PixelFormat) / 8;
+            var ptr = bmpData.Scan0;
+            for (var i = 0; i < height; i++)
+            {
+                Marshal.Copy(arr, i * arrRowLength, ptr, arrRowLength);
+                ptr += bmpData.Stride;
+            }
+
+            output.UnlockBits(bmpData);
+            return output;
+        }
+
+        private static byte[] BitmapToByteArray(Bitmap bitmap)
+        {
+            BitmapData bmpdata = null;
+
+            try
+            {
+                bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+                int numbytes = bmpdata.Stride * bitmap.Height;
+                byte[] bytedata = new byte[numbytes];
+                IntPtr ptr = bmpdata.Scan0;
+
+                Marshal.Copy(ptr, bytedata, 0, numbytes);
+
+                return bytedata;
+            }
+            finally
+            {
+                if (bmpdata != null)
+                    bitmap.UnlockBits(bmpdata);
+            }
+
         }
     }
 }
