@@ -36,6 +36,59 @@ namespace HyperionScreenCap.Capture
             _maxFps = maxFps;
             _frameCaptureTimeout = frameCaptureTimeout;
         }
+        private static Point[] GetImageBounds(Bitmap bmp, Color? backColor)
+        {
+	        //--------------------------------------------------------------------
+	        // Finding the Bounds of Crop Area bu using Unsafe Code and Image Proccesing
+	        Color c;
+	        int width = bmp.Width, height = bmp.Height;
+	        bool upperLeftPointFounded = false;
+	        var bounds = new Point[2];
+	        for (int y = 0; y < height; y++)
+	        {
+		        for (int x = 0; x < width; x++)
+		        {
+			        c = bmp.GetPixel(x, y);
+			        bool sameAsBackColor = ((c.R <= backColor.Value.R * 1.1 && c.R >= backColor.Value.R * 0.9) &&
+			                                (c.G <= backColor.Value.G * 1.1 && c.G >= backColor.Value.G * 0.9) &&
+			                                (c.B <= backColor.Value.B * 1.1 && c.B >= backColor.Value.B * 0.9));
+			        if (!sameAsBackColor)
+			        {
+				        if (!upperLeftPointFounded)
+				        {
+					        bounds[0] = new Point(x, y);
+					        bounds[1] = new Point(x, y);
+					        upperLeftPointFounded = true;
+				        }
+				        else
+				        {
+					        if (x > bounds[1].X)
+						        bounds[1].X = x;
+					        else if (x < bounds[0].X)
+						        bounds[0].X = x;
+					        if (y >= bounds[1].Y)
+						        bounds[1].Y = y;
+				        }
+			        }
+		        }
+	        }
+	        return bounds;
+        }
+
+        public static Bitmap CropUnwantedBackground(Bitmap bmp)
+        {
+	        var backColor = Color.Black;
+			var bounds = GetImageBounds(bmp, backColor);
+	        var diffX = bounds[1].X - bounds[0].X + 1;
+	        var diffY = bounds[1].Y - bounds[0].Y + 1;
+	        var croppedBmp = new Bitmap(diffX, diffY);
+	        var g = Graphics.FromImage(croppedBmp);
+	        var destRect = new Rectangle(0, 0, croppedBmp.Width, croppedBmp.Height);
+	        var srcRect = new Rectangle(bounds[0].X, bounds[0].Y, diffX, diffY);
+	        g.DrawImage(bmp, destRect, srcRect, GraphicsUnit.Pixel);
+	        bmp.Dispose();
+	        return croppedBmp;
+        }
 
         public byte[] Capture()
         {
@@ -46,6 +99,9 @@ namespace HyperionScreenCap.Capture
 
             var bitmap1 = ImageFromRawArray(image1, _capture1.CaptureWidth, _capture1.CaptureHeight, PixelFormat.Format24bppRgb);
             var bitmap2 = ImageFromRawArray(image2, _capture2.CaptureWidth, _capture2.CaptureHeight, PixelFormat.Format24bppRgb);
+
+            bitmap1 = CropUnwantedBackground((Bitmap)bitmap1);
+            bitmap2 = CropUnwantedBackground((Bitmap)bitmap2);
 
             // reduce image1 size to match image2 height
             if(bitmap1.Height > bitmap2.Height)

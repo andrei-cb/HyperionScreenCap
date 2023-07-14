@@ -36,7 +36,7 @@
       <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="dx11FrameCaptureTimeout" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1250</Value>
+      <Value Profile="(Default)">33</Value>
     </Setting>
     <Setting Name="dx11ImageScalingFactor" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">32</Value>
