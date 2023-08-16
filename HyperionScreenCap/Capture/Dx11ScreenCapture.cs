@@ -160,17 +160,25 @@ namespace HyperionScreenCap
 
         public byte[] Capture()
         {
-            if ( _desktopDuplicatorInvalid )
+            try // This block will help retry capture before giving up
             {
-                _duplicatedOutput?.Dispose();
-                InitDesktopDuplicator();
+                if (_desktopDuplicatorInvalid)
+                {
+                    _duplicatedOutput?.Dispose();
+                    InitDesktopDuplicator();
+                }
+
+                _captureTimer.Restart();
+                byte[] response = ManagedCapture();
+                _captureTimer.Stop();
+
+                return response;
+
             }
-
-            _captureTimer.Restart();
-            byte[] response = ManagedCapture();
-            _captureTimer.Stop();
-
-            return response;
+            catch (Exception ex)
+            {
+                return _lastCapturedFrame;
+            }
         }
 
         private byte[] ManagedCapture()
