@@ -24,8 +24,8 @@ namespace HyperionScreenCap.Helper
         public UpdateChecker()
         {
             _restClient = new RestClient(GITHUB_API_BASE_URL);
-            RestRequest request = new RestRequest(GITHUB_LATEST_RELEASE_GET_URL, Method.GET);
-            IRestResponse<Release> response = _restClient.Execute<Release>(request);
+            RestRequest request = new RestRequest(GITHUB_LATEST_RELEASE_GET_URL, Method.Get);
+            RestResponse<Release> response = _restClient.Execute<Release>(request);
             LatestRelease = response.Data;
         }
 

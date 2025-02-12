@@ -79,13 +79,15 @@ namespace HyperionScreenCap.Capture
         {
 	        var backColor = Color.Black;
 			var bounds = GetImageBounds(bmp, backColor);
-	        var diffX = bounds[1].X - bounds[0].X + 1;
-	        var diffY = bounds[1].Y - bounds[0].Y + 1;
+	        //var diffX = bounds[1].X - bounds[0].X + 1;
+            var diffX = bmp.Width;
+            var diffY = bounds[1].Y - bounds[0].Y + 1;
 	        var croppedBmp = new Bitmap(diffX, diffY);
 	        var g = Graphics.FromImage(croppedBmp);
 	        var destRect = new Rectangle(0, 0, croppedBmp.Width, croppedBmp.Height);
-	        var srcRect = new Rectangle(bounds[0].X, bounds[0].Y, diffX, diffY);
-	        g.DrawImage(bmp, destRect, srcRect, GraphicsUnit.Pixel);
+            //var srcRect = new Rectangle(bounds[0].X, bounds[0].Y, diffX, diffY);
+            var srcRect = new Rectangle(0, bounds[0].Y, diffX, diffY);
+            g.DrawImage(bmp, destRect, srcRect, GraphicsUnit.Pixel);
 	        bmp.Dispose();
 	        return croppedBmp;
         }
@@ -103,18 +105,24 @@ namespace HyperionScreenCap.Capture
             bitmap1 = CropUnwantedBackground((Bitmap)bitmap1);
             bitmap2 = CropUnwantedBackground((Bitmap)bitmap2);
 
-            // reduce image1 size to match image2 height
+            //Trace.WriteLine("Image1: " + bitmap1.Width + "x" + bitmap1.Height);
+            //Trace.WriteLine("Image2: " + bitmap2.Width + "x" + bitmap2.Height);
+
             if(bitmap1.Height > bitmap2.Height)
             {
-                var original = bitmap1;
-                bitmap1 = new Bitmap(original, new Size(_capture1.CaptureWidth, CaptureHeight));
+                //var original = bitmap1;
+                var original = bitmap2;
+                //bitmap1 = new Bitmap(original, new Size(_capture1.CaptureWidth, bitmap2.Height));
+                bitmap2 = new Bitmap(original, new Size(_capture2.CaptureWidth, bitmap1.Height));
                 original.Dispose();
             }
             // reduce image2 size to match image height
             else if(bitmap1.Height < bitmap2.Height)
             {
-                var original = bitmap2;
-                bitmap2 = new Bitmap(original, new Size(_capture2.CaptureWidth, CaptureHeight));
+                //var original = bitmap2;
+                var original = bitmap1;
+                //bitmap2 = new Bitmap(original, new Size(_capture2.CaptureWidth, bitmap1.Height));
+                bitmap1 = new Bitmap(original, new Size(_capture1.CaptureWidth, bitmap2.Height));
                 original.Dispose();
             }
 
